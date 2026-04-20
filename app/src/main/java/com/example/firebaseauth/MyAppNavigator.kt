@@ -69,6 +69,10 @@ fun MyAppNavigator(modifier: Modifier = Modifier, authViewModel: AuthViewModel) 
         composable("Login")  { LoginPage(modifier, navController, authViewModel) }
         composable("SignUp") { SignUpPage(modifier, navController, authViewModel) }
         composable("Home")   { HomePage(modifier, navController, authViewModel) }
+        composable("Details/{id}") { backStackEntry ->
+            val id = backStackEntry.arguments?.getString("id") ?: ""
+            DetailsPage( navController, authViewModel, id)
+        }
     }
 }
 

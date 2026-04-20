@@ -1,50 +1,3 @@
-//package com.example.firebaseauth.View
-//
-//import androidx.compose.foundation.layout.Arrangement
-//import androidx.compose.foundation.layout.Column
-//import androidx.compose.foundation.layout.fillMaxSize
-//import androidx.compose.material3.Text
-//import androidx.compose.material3.TextButton
-//import androidx.compose.runtime.Composable
-//import androidx.compose.runtime.LaunchedEffect
-//import androidx.compose.runtime.livedata.observeAsState
-//import androidx.compose.ui.Alignment
-//import androidx.compose.ui.Modifier
-//import androidx.compose.ui.unit.sp
-//import androidx.navigation.NavController
-//import com.example.firebaseauth.Model.AuthState
-//import com.example.firebaseauth.Model.AuthViewModel
-//
-//
-//@Composable
-//fun HomePage(modifier: Modifier = Modifier, navController: NavController, authViewModel: AuthViewModel) {
-//
-//    val authState = authViewModel.authState.observeAsState()
-//
-//    LaunchedEffect(authState.value) {
-//        when(authState.value){
-//            is AuthState.Unauthenticated -> navController.navigate("login")
-//            else -> Unit
-//        }
-//    }
-//
-//    Column(
-//        modifier = modifier.fillMaxSize(),
-//        verticalArrangement = Arrangement.Center,
-//        horizontalAlignment = Alignment.CenterHorizontally
-//    ) {
-//        Text(text = "Home Page", fontSize = 32.sp)
-//
-//        TextButton(onClick = {
-//            authViewModel.signout()
-//        }) {
-//            Text(text = "Sign out")
-//        }
-//    }
-//
-//}
-
-
 package com.example.firebaseauth.View
 
 import androidx.compose.foundation.background
@@ -69,7 +22,16 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
+import coil.compose.AsyncImage
+import coil.ImageLoader
+import coil.compose.AsyncImage
+import coil.decode.SvgDecoder
+import coil.request.ImageRequest
+
 
 data class BottomNavItem(val label: String, val icon: ImageVector)
 
@@ -81,13 +43,18 @@ val bottomNavItems = listOf(
 
 @Composable
 fun HomePage(modifier: Modifier = Modifier, navController: NavController, authViewModel: AuthViewModel) {
-
+    val context = LocalContext.current
     val restaurants by authViewModel.restaurants.observeAsState(emptyList())
-
+    val imageLoader = ImageLoader.Builder(context)
+        .components {
+            add(SvgDecoder.Factory())
+        }
+        .build()
     LaunchedEffect(Unit) {
         authViewModel.loadRestaurants()
     }
     var selectedTab by remember { mutableStateOf(0) }
+
 
     Box(modifier = modifier.fillMaxSize()) {
         Box(
@@ -129,11 +96,11 @@ fun HomePage(modifier: Modifier = Modifier, navController: NavController, authVi
                                             .background(Color(0xFFFFC107).copy(alpha = 0.15f)),
                                         contentAlignment = Alignment.Center
                                     ) {
-                                        Icon(
-                                            imageVector = Icons.Default.Home,
-                                            contentDescription = null,
-                                            tint = Color(0xFFFFC107),
-                                            modifier = Modifier.size(24.dp)
+                                        AsyncImage(
+                                            model = restaurant.Icon,
+                                            imageLoader = imageLoader,
+                                            contentDescription = restaurant.name,
+                                            modifier = Modifier.fillMaxSize()
                                         )
                                     }
 
@@ -150,8 +117,20 @@ fun HomePage(modifier: Modifier = Modifier, navController: NavController, authVi
                                         Text(
                                             text = restaurant.address,
                                             fontSize = 13.sp,
-                                            color = Color(0xFF8A8FA8)
+                                            color = Color(0xFF8A8FA8),
+                                            maxLines = 1,
+                                            overflow = TextOverflow.Ellipsis
                                         )
+                                    }
+                                    Button(
+                                        onClick = { navController.navigate("Details/${restaurant.id}") },
+                                        shape = RoundedCornerShape(10.dp),
+                                        colors = ButtonDefaults.buttonColors(
+                                            containerColor = Color(0xFFFFC107).copy(alpha = 0.15f),
+                                            contentColor = Color(0xFFFFC107)
+                                        )
+                                    ) {
+                                        Text("Visit")
                                     }
                                 }
                             }
@@ -164,6 +143,7 @@ fun HomePage(modifier: Modifier = Modifier, navController: NavController, authVi
                 }
                 1 -> ProfilePage(navController = navController, authViewModel = authViewModel)
                 2 -> Text("Settings Page", fontSize = 24.sp)
+
             }
         }
         NavigationBar(modifier = Modifier.align(Alignment.BottomCenter)) {

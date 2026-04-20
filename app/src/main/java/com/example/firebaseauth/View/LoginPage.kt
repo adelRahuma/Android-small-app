@@ -14,9 +14,15 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
@@ -38,13 +44,19 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lint.kotlin.metadata.Visibility
 import androidx.navigation.NavController
 import com.example.firebaseauth.Model.AuthState
 import com.example.firebaseauth.Model.AuthViewModel
 import com.example.firebaseauth.R
+
+
 
 private val BgDark        = Color(0xFF0F1117)
 private val SurfaceDark   = Color(0xFF1A1D27)
@@ -161,13 +173,39 @@ fun LoginPage(modifier: Modifier = Modifier, navController: NavController, authV
 
                     Spacer(modifier = Modifier.height(14.dp))
 
-                    // Password — unchanged value / onValueChange / label
+//                    // Password — unchanged value / onValueChange / label
+//                    OutlinedTextField(
+//                        value = password,
+//                        onValueChange = { password = it },
+//                        label = { Text(text = "Password") },
+//                        modifier = Modifier.fillMaxWidth(),
+//                        shape = RoundedCornerShape(14.dp),
+//                        // Hide password characters
+//                        visualTransformation = PasswordVisualTransformation(),
+//
+//                        // Show password keyboard
+//                        keyboardOptions = KeyboardOptions(
+//                            keyboardType = KeyboardType.Password
+//                        ),
+//                        colors = OutlinedTextFieldDefaults.colors(
+//                            focusedTextColor        = TextPrimary,
+//                            unfocusedTextColor      = TextPrimary,
+//                            focusedContainerColor   = FieldBg,
+//                            unfocusedContainerColor = FieldBg,
+//                            focusedBorderColor      = AccentYellow.copy(alpha = 0.8f),
+//                            unfocusedBorderColor    = FieldBorder,
+//                            focusedLabelColor       = AccentYellow,
+//                            unfocusedLabelColor     = TextSecondary,
+//                            cursorColor             = AccentYellow
+//                        )
+//                    )
+                    var passwordVisible by remember { mutableStateOf(false) }
+
                     OutlinedTextField(
                         value = password,
                         onValueChange = { password = it },
-                        label = { Text(text = "Password") },
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(14.dp),
+                        label = { Text("Password *") },
+
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedTextColor        = TextPrimary,
                             unfocusedTextColor      = TextPrimary,
@@ -178,9 +216,27 @@ fun LoginPage(modifier: Modifier = Modifier, navController: NavController, authV
                             focusedLabelColor       = AccentYellow,
                             unfocusedLabelColor     = TextSecondary,
                             cursorColor             = AccentYellow
-                        )
-                    )
+                        ),  // ✅ comma added here
 
+                        visualTransformation =
+                            if (passwordVisible) VisualTransformation.None
+                            else PasswordVisualTransformation(),
+
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Password
+                        ),
+
+                        trailingIcon = {
+                            IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                                Icon(
+                                    imageVector =
+                                        if (passwordVisible) Icons.Default.Visibility
+                                        else Icons.Default.VisibilityOff,
+                                    contentDescription = "Toggle password visibility"
+                                )
+                            }
+                        }
+                    )
                     Spacer(modifier = Modifier.height(22.dp))
 
                     // Login button — unchanged onClick / enabled

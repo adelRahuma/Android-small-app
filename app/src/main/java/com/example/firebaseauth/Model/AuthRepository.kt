@@ -63,9 +63,12 @@ class AuthRepository {
     }
 
     data class Restaurant(
+        val id :String ="",
         val order: Int = 0,
         val name: String = "",
-        val address: String = ""
+        val address: String = "",
+        val Icon: String = "",
+        val menue: List<String> = emptyList()
     )
 
     fun getRestaurants(onResult: (List<Restaurant>) -> Unit) {
@@ -73,7 +76,14 @@ class AuthRepository {
             .orderBy("order")
             .get()
             .addOnSuccessListener { result ->
-                val restaurants = result.map { it.toObject(Restaurant::class.java) }
+                val restaurants = result.map { document ->
+
+                    val restaurant = document.toObject(Restaurant::class.java)
+
+                    restaurant.copy(id = document.id)
+
+                }
+
                 onResult(restaurants)
             }
             .addOnFailureListener {

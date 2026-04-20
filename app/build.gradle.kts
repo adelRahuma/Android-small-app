@@ -53,6 +53,7 @@ dependencies {
     implementation(libs.androidx.compose.runtime.livedata)
     implementation(libs.firebase.auth)
     implementation(libs.androidx.compose.foundation)
+    implementation(libs.androidx.compose.animation.core.lint)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
@@ -68,4 +69,9 @@ dependencies {
     implementation("com.google.firebase:firebase-firestore-ktx:25.1.1")
     implementation("com.google.firebase:firebase-storage-ktx:21.0.1")
     implementation("com.google.firebase:firebase-auth-ktx:23.1.0")
+    implementation("io.coil-kt:coil-compose:2.5.0")
+    implementation("io.coil-kt:coil-svg:2.5.0")
+    implementation("com.tbuonomo:dotsindicator:5.1.0")
+    implementation ("androidx.compose.material:material-icons-extended")
+
 }

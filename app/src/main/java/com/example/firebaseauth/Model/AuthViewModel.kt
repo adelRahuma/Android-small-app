@@ -21,6 +21,16 @@ class AuthViewModel(
     fun loadRestaurants() {
         authRepository.getRestaurants { _restaurants.value = it }
     }
+    private val _meals = MutableLiveData<List<AuthRepository.Meal>>(emptyList())
+    val meals: LiveData<List<AuthRepository.Meal>> = _meals
+
+    fun loadMeals(id: String) {
+        Log.d("MEALS_FLOW", "STEP 1: ViewModel called with id = $id")
+        authRepository.getMeals(id) {
+            Log.d("MEALS", "Meals received: ${it.size}")
+            _meals.value = it
+        }
+    }
     fun loadUserProfile() {
         authRepository.getUserProfile { _phone.value = it ?: "" }
         authRepository.getProfileImageUrl { _photoUrl.value = it }
@@ -30,12 +40,6 @@ class AuthViewModel(
         authRepository.saveUserProfile(phone, imgUrl, onResult)
     }
 
-    fun uploadProfileImage(uri: android.net.Uri, onResult: (String?) -> Unit) {
-        authRepository.uploadProfileImage(uri) {
-            _photoUrl.value = it
-            onResult(it)
-        }
-    }
     private val _authState = MutableLiveData<AuthState>()
     val authState: LiveData<AuthState> = _authState
 
@@ -56,18 +60,16 @@ class AuthViewModel(
             _authState.value = AuthState.Error("Email or password can't be empty")
             return
         }
+
         _authState.value = AuthState.Loading
 
         viewModelScope.launch {
-            authRepository.login(email, password)
-                .addOnCompleteListener { task ->
-                    if (task.isSuccessful) {
-                        _authState.value = AuthState.Authenticated
-                    } else {
-//                        Log.e("FirebaseError", task.exception?.message ?: "Unknown error")
-                        _authState.value = AuthState.Error(task.exception?.message ?: "Something went wrong")
-                    }
-                }
+            try {
+                authRepository.login(email, password)
+                _authState.value = AuthState.Authenticated
+            } catch (e: Exception) {
+                _authState.value = AuthState.Error(e.message ?: "Something went wrong")
+            }
         }
     }
 
@@ -76,17 +78,21 @@ class AuthViewModel(
             _authState.value = AuthState.Error("Email or password can't be empty")
             return
         }
+
         _authState.value = AuthState.Loading
 
         viewModelScope.launch {
-            authRepository.signup(email, password)
-                .addOnCompleteListener { task ->
-                    if (task.isSuccessful) {
-                        _authState.value = AuthState.Authenticated
-                    } else {
-                        _authState.value = AuthState.Error(task.exception?.message ?: "Something went wrong")
-                    }
-                }
+            try {
+                authRepository.signup(email, password)
+
+                // If no exception → success
+                _authState.value = AuthState.Authenticated
+
+            } catch (e: Exception) {
+                _authState.value = AuthState.Error(
+                    e.message ?: "Something went wrong"
+                )
+            }
         }
     }
 
